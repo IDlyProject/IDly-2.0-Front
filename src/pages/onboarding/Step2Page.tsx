@@ -26,12 +26,11 @@ function Step2Page() {
   const normalize = (value: string) =>
     guide?.normalizePassword ? guide.normalizePassword(value) : value
 
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText()
-      setPassword(normalize(text))
-    } catch {}
-  }
+  const handlePaste = () =>
+    navigator.clipboard
+      .readText()
+      .then((text) => setPassword(normalize(text)))
+      .catch(() => undefined)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()

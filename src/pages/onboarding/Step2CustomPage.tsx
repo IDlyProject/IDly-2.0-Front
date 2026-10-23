@@ -13,7 +13,7 @@ function Step2CustomPage() {
 
   const [email, setEmail] = useState(initialEmail)
   const [imapHost, setImapHost] = useState('')
-  const [port, setPort] = useState('')
+  const [port, setPort] = useState('993')
   const [password, setPassword] = useState('')
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -65,7 +65,6 @@ function Step2CustomPage() {
           <TextField
             label="포트"
             className="pt-1"
-            placeholder="993"
             inputMode="numeric"
             value={port}
             onChange={(e) => setPort(e.target.value.replace(/\D/g, ''))}

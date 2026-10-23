@@ -69,7 +69,7 @@ function GrayGuideCard({ title, steps }: CardProps) {
 function BlueGuideCard({ title, steps }: CardProps) {
   return (
     <div className="font-noto flex w-full flex-col gap-[7px] rounded-[14px] border border-[#dce7f9] bg-[#f0f5ff] px-[18px] pt-[23px] pb-6">
-      <h3 className="text-[13px] leading-normal font-extrabold text-[#33445f]">
+      <h3 className="text-[13px] leading-4 font-extrabold text-[#33445f]">
         {title}
       </h3>
 

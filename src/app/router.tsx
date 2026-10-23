@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import HomePage from '@/pages/HomePage.tsx'
 import UiPreviewPage from '@/pages/dev/UiPreviewPage.tsx'
+import AddMailPage from '@/pages/onboarding/AddMailPage.tsx'
 import OnboardingLayout from '@/pages/onboarding/OnboardingLayout.tsx'
 import Step1Page from '@/pages/onboarding/Step1Page.tsx'
 import Step2CustomPage from '@/pages/onboarding/Step2CustomPage.tsx'
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Step1Page /> },
       { path: 'mail', element: <Step2Page /> },
       { path: 'mail/custom', element: <Step2CustomPage /> },
+      { path: 'mail/add', element: <AddMailPage /> },
       { path: 'searching', element: <Step3Page /> },
       { path: 'found', element: <Step4Page /> },
     ],

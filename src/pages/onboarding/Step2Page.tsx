@@ -1,35 +1,28 @@
-import { useState, type FormEvent } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import GuideStepCard from '@/features/onboarding/components/GuideStepCard.tsx'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
-import {
-  getEmailDomain,
-  getMailProviderGuide,
-} from '@/features/onboarding/mailProviders.ts'
+import { useMailConnectForm } from '@/features/onboarding/hooks/useMailConnectForm.ts'
 import Button from '@/shared/components/ui/Button.tsx'
 import InfoNotice from '@/shared/components/ui/InfoNotice.tsx'
 import TextField from '@/shared/components/ui/TextField.tsx'
 
 function Step2Page() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [emailBlurred, setEmailBlurred] = useState(false)
-  const [passwordInput, setPasswordInput] = useState({ for: '', value: '' })
-
-  const domain = getEmailDomain(email)
-  const guide = domain ? getMailProviderGuide(domain) : null
-  const password = passwordInput.for === guide?.id ? passwordInput.value : ''
-  const setPassword = (value: string) =>
-    setPasswordInput({ for: guide?.id ?? '', value })
-  const isCustomMail = domain !== null && guide === null && emailBlurred
-
-  const normalize = (value: string) =>
-    guide?.normalizePassword ? guide.normalizePassword(value) : value
+  const {
+    email,
+    setEmail,
+    onEmailBlur,
+    guide,
+    isCustomMail,
+    password,
+    setPassword,
+  } = useMailConnectForm()
 
   const handlePaste = () =>
     navigator.clipboard
       .readText()
-      .then((text) => setPassword(normalize(text)))
+      .then(setPassword)
       .catch(() => undefined)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -69,11 +62,8 @@ function Step2Page() {
             autoComplete="email"
             placeholder="you@gmail.com"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-              setEmailBlurred(false)
-            }}
-            onBlur={() => setEmailBlurred(true)}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={onEmailBlur}
             required
           />
 
@@ -97,7 +87,7 @@ function Step2Page() {
                 className="pt-1 pb-3"
                 inputClassName="tracking-[1.5px]"
                 value={password}
-                onChange={(e) => setPassword(normalize(e.target.value))}
+                onChange={(e) => setPassword(e.target.value)}
                 maxLength={guide.passwordMaxLength}
                 required
                 trailing={

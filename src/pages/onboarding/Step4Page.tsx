@@ -34,8 +34,11 @@ function Step4Page() {
         </Button>
         <Button
           variant="soft"
-          // TODO: O5 메일 추가 화면으로 이동
-          onClick={() => console.info('add mail')}
+          onClick={() =>
+            navigate('/onboarding/mail/add', {
+              state: { connectedEmail: email },
+            })
+          }
         >
           다른 메일도 연결하기
         </Button>

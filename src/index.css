@@ -30,6 +30,10 @@
   --color-badge-text: #5477b8;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   @apply bg-page text-ink font-sans antialiased;
 }

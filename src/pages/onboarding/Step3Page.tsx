@@ -1,4 +1,5 @@
-import { useLocation } from 'react-router'
+import { useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import MascotStatus from '@/features/onboarding/components/MascotStatus.tsx'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
 import { useMockScanProgress } from '@/features/onboarding/hooks/useMockScanProgress.ts'
@@ -9,11 +10,22 @@ const formatCount = (n: number) => n.toLocaleString('ko-KR')
 
 function Step3Page() {
   const location = useLocation()
+  const navigate = useNavigate()
   const email = (location.state as LocationState)?.email
 
   const { scanned, total } = useMockScanProgress(12480)
   const ratio = total > 0 ? scanned / total : 0
   const percent = Math.round(ratio * 100)
+  const isDone = total > 0 && scanned === total
+
+  useEffect(() => {
+    if (!isDone) return
+    const timer = setTimeout(
+      () => navigate('/onboarding/found', { state: { email }, replace: true }),
+      800,
+    )
+    return () => clearTimeout(timer)
+  }, [isDone, email, navigate])
 
   return (
     <main className="flex w-full flex-col items-center">

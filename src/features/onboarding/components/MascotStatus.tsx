@@ -1,4 +1,5 @@
 import mascot from '@/shared/assets/images/mascot.svg'
+import { cn } from '@/shared/lib/cn.ts'
 import dotError from '@/shared/assets/images/status-dot-error.svg'
 import dotProgress from '@/shared/assets/images/status-dot-progress.svg'
 import dotSuccess from '@/shared/assets/images/status-dot-success.svg'
@@ -25,7 +26,10 @@ function MascotStatus({ status, title }: MascotStatusProps) {
           alt=""
           width={20}
           height={20}
-          className="absolute -top-[5px] -right-[2px]"
+          className={cn(
+            'absolute -top-[5px] -right-[2px]',
+            status === 'progress' && 'motion-safe:animate-blink',
+          )}
         />
       </div>
       <h1 className="text-ink mt-[42px] text-2xl leading-8 font-bold tracking-[-0.6px]">

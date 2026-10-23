@@ -39,8 +39,9 @@ function Step2Page() {
       navigate('/onboarding/mail/custom', { state: { email } })
       return
     }
-    // TODO: 메일 연결 API 호출 후 O3 찾는 중 화면으로 이동
+    // TODO: 메일 연결 API 연동 전까지 검수용으로 바로 O3로 이동
     console.info('connect', guide.id, email)
+    navigate('/onboarding/searching', { state: { email } })
   }
 
   return (

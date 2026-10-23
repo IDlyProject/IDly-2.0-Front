@@ -5,6 +5,14 @@
     'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
     system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   --font-noto: 'Noto Sans KR', 'Pretendard Variable', Pretendard, sans-serif;
+  --font-inter: Inter, 'Pretendard Variable', Pretendard, sans-serif;
+
+  --animate-blink: blink 1.2s ease-in-out infinite;
+  @keyframes blink {
+    50% {
+      opacity: 0.2;
+    }
+  }
 
   /* 모든 화면 배경 */
   --color-page: #f9f9fd;

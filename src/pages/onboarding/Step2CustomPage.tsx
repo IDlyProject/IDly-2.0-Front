@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import Badge from '@/shared/components/ui/Badge.tsx'
 import Button from '@/shared/components/ui/Button.tsx'
 import InfoNotice from '@/shared/components/ui/InfoNotice.tsx'
@@ -9,6 +9,7 @@ type LocationState = { email?: string } | null
 
 function Step2CustomPage() {
   const location = useLocation()
+  const navigate = useNavigate()
   const initialEmail = (location.state as LocationState)?.email ?? ''
 
   const [email, setEmail] = useState(initialEmail)
@@ -18,8 +19,9 @@ function Step2CustomPage() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // TODO: 메일 서버 연결 API 호출 (성공: O3, 실패: O2c)
+    // TODO: 메일 서버 연결 API 호출 (성공: O3, 실패: O2c). 연동 전까지 검수용으로 바로 O3로 이동
     console.info('connect custom', { email, imapHost, port })
+    navigate('/onboarding/searching', { state: { email } })
   }
 
   return (

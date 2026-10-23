@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
 import apple from '@/shared/assets/icons/apple.svg'
 import google from '@/shared/assets/icons/google.svg'
@@ -15,9 +16,12 @@ const providers: { id: SocialProvider; label: string; icon: string }[] = [
 
 /** O1 시작하기 */
 function Step1Page() {
+  const navigate = useNavigate()
+
+  // TODO: 소셜 로그인 연동 전까지 검수용으로 바로 O2로 이동
   const handleLogin = (provider: SocialProvider) => {
-    // TODO: 소셜 로그인 연동
     console.info('login', provider)
+    navigate('/onboarding/mail')
   }
 
   return (

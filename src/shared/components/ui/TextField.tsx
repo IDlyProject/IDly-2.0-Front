@@ -49,7 +49,7 @@ function TextField({
     <div className={cn('flex w-full flex-col gap-2', className)}>
       <label
         htmlFor={inputId}
-        className="font-noto text-xs font-bold tracking-[-0.2px] text-[#8c97a9]"
+        className="font-noto text-xs leading-[14px] font-bold tracking-[-0.2px] text-[#8c97a9]"
       >
         {label}
       </label>

@@ -11,7 +11,7 @@ function Badge({ children, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'bg-badge-bg font-noto text-badge-text inline-flex items-center rounded-full px-2.5 py-[5px] text-xs font-bold tracking-[-0.2px]',
+        'bg-badge-bg font-noto text-badge-text inline-flex items-center rounded-full px-2.5 py-[5px] text-xs leading-[14px] font-bold tracking-[-0.2px]',
         className,
       )}
     >

@@ -5,7 +5,7 @@ const variantClass = {
   default:
     'border-[#e9edf3] bg-[#f2f5f9] py-[13px] text-xs leading-[19.8px] text-[#707d91]',
   compact:
-    'border-[#e7ebf1] bg-[#f1f4f8] py-3 text-[11px] leading-normal text-[#8590a1]',
+    'border-[#e7ebf1] bg-[#f1f4f8] py-3 text-[11px] leading-[13px] text-[#8590a1]',
 } as const
 
 type InfoNoticeProps = {

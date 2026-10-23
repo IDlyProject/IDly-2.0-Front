@@ -5,6 +5,7 @@ type TextFieldProps = ComponentProps<'input'> & {
   label: ReactNode
   variant?: 'underline' | 'box'
   trailing?: ReactNode
+  inputClassName?: string
 }
 
 function TextField({
@@ -12,6 +13,7 @@ function TextField({
   variant = 'box',
   trailing,
   className,
+  inputClassName,
   id,
   ...props
 }: TextFieldProps) {
@@ -30,7 +32,10 @@ function TextField({
         <div className="relative flex items-center pb-1">
           <input
             id={inputId}
-            className="text-ink min-w-0 flex-1 bg-transparent py-1 text-[15px] leading-[22.5px] font-semibold outline-none placeholder:text-[#b3bbc8]"
+            className={cn(
+              'text-ink min-w-0 flex-1 bg-transparent py-1 text-[15px] leading-[22.5px] font-semibold outline-none placeholder:text-[#b3bbc8]',
+              inputClassName,
+            )}
             {...props}
           />
           {trailing}
@@ -51,7 +56,10 @@ function TextField({
       <div className="flex h-[49px] items-center rounded-[10px] border border-[#dde3ed] bg-white px-[15px] focus-within:border-[#8c97a9]">
         <input
           id={inputId}
-          className="font-noto min-w-0 flex-1 bg-transparent text-[15px] text-[#263247] outline-none placeholder:text-[#b3bbc8]"
+          className={cn(
+            'font-noto min-w-0 flex-1 bg-transparent text-[15px] text-[#263247] outline-none placeholder:text-[#b3bbc8]',
+            inputClassName,
+          )}
           {...props}
         />
         {trailing}

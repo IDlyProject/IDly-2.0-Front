@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation } from 'react-router'
+import { useConnectMailbox } from '@/features/onboarding/hooks/useConnectMailbox.ts'
 import Badge from '@/shared/components/ui/Badge.tsx'
 import Button from '@/shared/components/ui/Button.tsx'
 import InfoNotice from '@/shared/components/ui/InfoNotice.tsx'
@@ -9,19 +10,22 @@ type LocationState = { email?: string } | null
 
 function Step2CustomPage() {
   const location = useLocation()
-  const navigate = useNavigate()
   const initialEmail = (location.state as LocationState)?.email ?? ''
 
   const [email, setEmail] = useState(initialEmail)
   const [imapHost, setImapHost] = useState('')
   const [port, setPort] = useState('993')
   const [password, setPassword] = useState('')
+  const { connect, isPending, errorMessage } = useConnectMailbox()
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // TODO: 메일 서버 연결 API 호출 (성공: O3, 실패: O2c). 연동 전까지 검수용으로 바로 O3로 이동
-    console.info('connect custom', { email, imapHost, port })
-    navigate('/onboarding/searching', { state: { email } })
+    connect({
+      email: email.trim(),
+      password,
+      imapHost: imapHost.trim(),
+      imapPort: Number(port),
+    })
   }
 
   return (
@@ -90,9 +94,15 @@ function Step2CustomPage() {
             required
           />
 
-          <Button type="submit" variant="mirage" arrow>
-            연결하기
+          <Button type="submit" variant="mirage" arrow disabled={isPending}>
+            {isPending ? '연결하는 중…' : '연결하기'}
           </Button>
+
+          {errorMessage && (
+            <p role="alert" className="text-center text-xs text-[#e5484d]">
+              {errorMessage}
+            </p>
+          )}
 
           <InfoNotice>
             Outlook · Hotmail은 Microsoft 정책으로{' '}

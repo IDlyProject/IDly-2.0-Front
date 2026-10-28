@@ -1,6 +1,9 @@
 import type { FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import GuideStepCard from '@/features/onboarding/components/GuideStepCard.tsx'
+import { useQuery } from '@tanstack/react-query'
+import { listMailboxes } from '@/features/onboarding/api.ts'
+import { useConnectMailbox } from '@/features/onboarding/hooks/useConnectMailbox.ts'
 import { useMailConnectForm } from '@/features/onboarding/hooks/useMailConnectForm.ts'
 import Badge from '@/shared/components/ui/Badge.tsx'
 import Button from '@/shared/components/ui/Button.tsx'
@@ -12,7 +15,14 @@ type LocationState = { connectedEmail?: string } | null
 function AddMailPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const connectedEmail = (location.state as LocationState)?.connectedEmail
+  const stateEmail = (location.state as LocationState)?.connectedEmail
+  const { data } = useQuery({
+    queryKey: ['mailboxes'],
+    queryFn: listMailboxes,
+    enabled: !stateEmail,
+  })
+  const connectedEmail =
+    stateEmail ?? data?.mailboxes.find((m) => m.isPrimary)?.email
 
   const {
     email,
@@ -23,6 +33,7 @@ function AddMailPage() {
     password,
     setPassword,
   } = useMailConnectForm()
+  const { connect, isPending, errorMessage } = useConnectMailbox()
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -30,9 +41,7 @@ function AddMailPage() {
       navigate('/onboarding/mail/custom', { state: { email } })
       return
     }
-    // TODO: 메일 추가 API 연동 전까지 검수용으로 바로 O3로 이동
-    console.info('add mail', guide.id, email)
-    navigate('/onboarding/searching', { state: { email } })
+    connect({ email: email.trim(), password })
   }
 
   return (
@@ -109,9 +118,15 @@ function AddMailPage() {
             </InfoNotice>
           )}
 
-          <Button type="submit" variant="mirageCompact">
-            연결하고 계정 추가
+          <Button type="submit" variant="mirageCompact" disabled={isPending}>
+            {isPending ? '연결하는 중…' : '연결하고 계정 추가'}
           </Button>
+
+          {errorMessage && (
+            <p role="alert" className="text-center text-xs text-[#e5484d]">
+              {errorMessage}
+            </p>
+          )}
 
           <p className="pb-1 text-[11px] leading-[13px] text-[#9da6b4]">
             연결하면 메일 분석(국외 전송 포함)에 동의하게 돼요.

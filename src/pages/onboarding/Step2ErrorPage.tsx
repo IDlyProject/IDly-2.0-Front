@@ -1,10 +1,11 @@
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
+import type { ConnectErrorState } from '@/features/onboarding/hooks/useConnectMailbox.ts'
 import mascotError from '@/shared/assets/images/mascot-error.svg'
 import Badge from '@/shared/components/ui/Badge.tsx'
 import Button from '@/shared/components/ui/Button.tsx'
 import InfoNotice from '@/shared/components/ui/InfoNotice.tsx'
 
-const checklist = [
+const defaultChecklist = [
   '로그인하지 못했어요. 앱 비밀번호가 맞는지, Gmail에서 IMAP이 켜져 있는지 확인해주세요.',
   '포트 번호가 993인지 확인해주세요.',
   '비밀번호를 다시 한 번 입력해주세요.',
@@ -12,6 +13,9 @@ const checklist = [
 
 function Step2ErrorPage() {
   const navigate = useNavigate()
+  const error = useLocation().state as ConnectErrorState | null
+  const checklist = error?.hints.length ? error.hints : defaultChecklist
+  const showAppPasswordLink = !error || error.provider === 'gmail'
 
   return (
     <main className="font-noto flex w-[680px] flex-col items-center">
@@ -52,19 +56,21 @@ function Step2ErrorPage() {
         variant="mirageCompact"
         arrow
         className="mt-[15.5px]"
-        onClick={() => navigate('/onboarding/mail/custom')}
+        onClick={() => navigate(error?.retryPath ?? '/onboarding/mail/custom')}
       >
         다시 연결하기
       </Button>
 
-      <a
-        href="https://myaccount.google.com/apppasswords"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-3.5 self-start text-xs leading-[14px] text-[#6d7b91] underline"
-      >
-        앱 비밀번호 새로 만들기 ↗
-      </a>
+      {showAppPasswordLink && (
+        <a
+          href="https://myaccount.google.com/apppasswords"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3.5 self-start text-xs leading-[14px] text-[#6d7b91] underline"
+        >
+          앱 비밀번호 새로 만들기 ↗
+        </a>
+      )}
 
       <InfoNotice variant="compact" className="mt-[19px]">
         서버에 연결할 수 없을 때는 잠시 후 다시 시도해주세요.

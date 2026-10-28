@@ -35,7 +35,7 @@ function Button({
     <button
       type={type}
       className={cn(
-        'flex w-full items-center justify-center font-bold',
+        'flex w-full items-center justify-center font-bold disabled:cursor-not-allowed disabled:opacity-60',
         variantClass[variant],
         className,
       )}

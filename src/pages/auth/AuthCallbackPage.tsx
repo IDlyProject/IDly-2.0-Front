@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { exchangeCode, takeCodeVerifier } from '@/features/auth/api.ts'
+import { useEntryRedirect } from '@/features/onboarding/hooks/useEntryRedirect.ts'
 import { saveTokens } from '@/shared/lib/authToken.ts'
 
 function AuthCallbackPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const started = useRef(false)
+  const redirect = useEntryRedirect()
 
   useEffect(() => {
     // 로그인 코드는 한 번만 쓸 수 있어서 StrictMode 재실행을 막는다
@@ -24,12 +26,14 @@ function AuthCallbackPage() {
     }
 
     exchangeCode(code, verifier)
-      .then((tokens) => {
+      .then(async (tokens) => {
         saveTokens(tokens)
-        navigate('/onboarding/mail', { replace: true })
+        await redirect().catch(() =>
+          navigate('/onboarding/mail', { replace: true }),
+        )
       })
       .catch(fail)
-  }, [searchParams, navigate])
+  }, [searchParams, navigate, redirect])
 
   return null
 }

@@ -1,10 +1,13 @@
+import { useEffect, useRef } from 'react'
 import { type SocialProvider, startSocialLogin } from '@/features/auth/api.ts'
+import { useEntryRedirect } from '@/features/onboarding/hooks/useEntryRedirect.ts'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
 import apple from '@/shared/assets/icons/apple.svg'
 import google from '@/shared/assets/icons/google.svg'
 import kakao from '@/shared/assets/icons/kakao.svg'
 import mascotSmall from '@/shared/assets/images/mascot-small.svg'
 import Button from '@/shared/components/ui/Button.tsx'
+import { getAccessToken } from '@/shared/lib/authToken.ts'
 
 const providers: { id: SocialProvider; label: string; icon: string }[] = [
   { id: 'google', label: 'Google로 계속하기', icon: google },
@@ -14,6 +17,16 @@ const providers: { id: SocialProvider; label: string; icon: string }[] = [
 
 /** O1 시작하기 */
 function Step1Page() {
+  const redirect = useEntryRedirect()
+  const checked = useRef(false)
+
+  // 이미 로그인한 사용자는 온보딩 진행 상태에 맞는 화면으로 보낸다
+  useEffect(() => {
+    if (checked.current || !getAccessToken()) return
+    checked.current = true
+    redirect().catch(() => undefined)
+  }, [redirect])
+
   const handleLogin = (provider: SocialProvider) => {
     void startSocialLogin(provider)
   }

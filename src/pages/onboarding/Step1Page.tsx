@@ -1,12 +1,10 @@
-import { useNavigate } from 'react-router'
+import { type SocialProvider, startSocialLogin } from '@/features/auth/api.ts'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
 import apple from '@/shared/assets/icons/apple.svg'
 import google from '@/shared/assets/icons/google.svg'
 import kakao from '@/shared/assets/icons/kakao.svg'
 import mascotSmall from '@/shared/assets/images/mascot-small.svg'
 import Button from '@/shared/components/ui/Button.tsx'
-
-type SocialProvider = 'google' | 'apple' | 'kakao'
 
 const providers: { id: SocialProvider; label: string; icon: string }[] = [
   { id: 'google', label: 'Google로 계속하기', icon: google },
@@ -16,12 +14,8 @@ const providers: { id: SocialProvider; label: string; icon: string }[] = [
 
 /** O1 시작하기 */
 function Step1Page() {
-  const navigate = useNavigate()
-
-  // TODO: 소셜 로그인 연동 전까지 검수용으로 바로 O2로 이동
   const handleLogin = (provider: SocialProvider) => {
-    console.info('login', provider)
-    navigate('/onboarding/mail')
+    void startSocialLogin(provider)
   }
 
   return (

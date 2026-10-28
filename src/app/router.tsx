@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router'
+import AuthCallbackPage from '@/pages/auth/AuthCallbackPage.tsx'
 import HomePage from '@/pages/HomePage.tsx'
 import UiPreviewPage from '@/pages/dev/UiPreviewPage.tsx'
 import AddMailPage from '@/pages/onboarding/AddMailPage.tsx'
@@ -12,6 +13,7 @@ import Step4Page from '@/pages/onboarding/Step4Page.tsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
+  { path: '/auth/callback', element: <AuthCallbackPage /> },
   {
     path: '/onboarding',
     element: <OnboardingLayout />,

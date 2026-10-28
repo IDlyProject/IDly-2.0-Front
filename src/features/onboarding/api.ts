@@ -74,3 +74,14 @@ export function updateMailboxCredentials(
     body: JSON.stringify(body),
   })
 }
+
+export function getRun(runId: string) {
+  return authApi<RunView>(`/runs/${runId}`)
+}
+
+export function resumeRun(runId: string) {
+  return authApi<RunView>(`/runs/${runId}/resume`, {
+    method: 'POST',
+    body: '{}',
+  })
+}

@@ -3,15 +3,14 @@ import MascotStatus from '@/features/onboarding/components/MascotStatus.tsx'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
 import Button from '@/shared/components/ui/Button.tsx'
 
-type LocationState = { email?: string } | null
-
-// TODO: 검색 결과 API 연동 시 교체
-const MOCK_FOUND_COUNT = 41
+type LocationState = { email?: string; foundCount?: number | null } | null
 
 function Step4Page() {
   const location = useLocation()
   const navigate = useNavigate()
-  const email = (location.state as LocationState)?.email
+  const state = location.state as LocationState
+  const email = state?.email
+  const foundCount = state?.foundCount ?? 0
 
   return (
     <main className="flex w-full flex-col items-center">
@@ -19,7 +18,7 @@ function Step4Page() {
 
       <MascotStatus
         status="success"
-        title={`계정 ${MOCK_FOUND_COUNT}개를 찾았어요`}
+        title={`계정 ${foundCount}개를 찾았어요`}
       />
 
       <div className="flex w-[440px] flex-col gap-6 pt-10">

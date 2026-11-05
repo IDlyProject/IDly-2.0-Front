@@ -16,10 +16,17 @@ type ServiceCardProps = {
   title: ReactNode
   items: ServiceItem[]
   onSelect: (item: ServiceItem, anchor: HTMLElement) => void
+  emptyState?: ReactNode
   className?: string
 }
 
-function ServiceCard({ title, items, onSelect, className }: ServiceCardProps) {
+function ServiceCard({
+  title,
+  items,
+  onSelect,
+  emptyState,
+  className,
+}: ServiceCardProps) {
   return (
     <section
       className={cn(
@@ -39,11 +46,12 @@ function ServiceCard({ title, items, onSelect, className }: ServiceCardProps) {
         </button>
       </div>
 
-      {items.length === 0 && (
-        <p className="flex flex-1 items-center justify-center text-base leading-normal text-[#9aa0b4]">
-          이 메일과 관련된 서비스가 없어요
-        </p>
-      )}
+      {items.length === 0 &&
+        (emptyState ?? (
+          <p className="flex flex-1 items-center justify-center text-base leading-normal text-[#9aa0b4]">
+            이 메일과 관련된 서비스가 없어요
+          </p>
+        ))}
 
       <ul className="flex flex-col">
         {items.slice(0, MAX_ROWS).map((item, index) => (

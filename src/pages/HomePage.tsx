@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import HomeHeader from '@/features/home/components/HomeHeader.tsx'
 import ServiceCard from '@/features/home/components/ServiceCard.tsx'
 import AccountPanelContent from '@/features/home/components/AccountPanelContent.tsx'
@@ -7,10 +7,13 @@ import SecurityAlertPanelContent from '@/features/home/components/SecurityAlertP
 import ServicePanel, {
   PANEL_CLOSE_DURATION,
 } from '@/features/home/components/ServicePanel.tsx'
-import { homeMock } from '@/features/home/mockData.ts'
+import { homeAllClearMock, homeMock } from '@/features/home/mockData.ts'
 import type { ServiceItem } from '@/features/home/types.ts'
+import { cn } from '@/shared/lib/cn.ts'
 import heroBackground from '@/shared/assets/images/home/hero-background.svg'
 import bannerMascot from '@/shared/assets/images/home/banner-mascot.svg'
+import bannerMascotCalm from '@/shared/assets/images/home/banner-mascot-calm.svg'
+import securityEmpty from '@/shared/assets/images/home/security-empty.svg'
 import bannerShadow from '@/shared/assets/images/home/banner-shadow.svg'
 
 const chipBase =
@@ -21,7 +24,9 @@ type OpenedService = { item: ServiceItem; anchor: HTMLElement; seq: number }
 
 function HomePage() {
   const navigate = useNavigate()
-  const data = homeMock
+  const [searchParams] = useSearchParams()
+  const data =
+    searchParams.get('mock') === 'clear' ? homeAllClearMock : homeMock
   const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null)
   const [openedService, setOpenedService] = useState<OpenedService | null>(null)
   const openService = (item: ServiceItem, anchor: HTMLElement) =>
@@ -69,6 +74,8 @@ function HomePage() {
     (item) => !dismissedAlertIds.includes(item.id),
   )
   const securityAlerts = byMailbox(activeAlerts)
+  const hasDormant = data.dormant.count > 0
+  const allClear = !data.pendingTask && activeAlerts.length === 0 && !hasDormant
   const openedAlert = openedService
     ? activeAlerts.find((alert) => alert.id === openedService.item.id)
         ?.securityAlert
@@ -90,22 +97,38 @@ function HomePage() {
           className="pointer-events-none absolute top-0 left-[-81px] hidden max-w-none lg:block"
         />
 
-        <section className="relative pl-[7px]">
+        <section className={cn('relative pl-[7px]', allClear && 'pt-[55px]')}>
           <h1 className="text-[34px] leading-[51px] font-bold tracking-[-1.5px] text-[#141c3a]">
-            {data.userName} 님, 매달{' '}
-            <span className="text-[#f26a1b]">
-              {data.monthlySubscriptionCost.toLocaleString('ko-KR')}원
-            </span>
-            이
-            <br />
-            구독으로 나가고 있어요
+            {allClear ? (
+              `${data.userName} 님, 지금은 정리할 게 없어요`
+            ) : (
+              <>
+                {data.userName} 님, 매달{' '}
+                <span className="text-[#f26a1b]">
+                  {data.monthlySubscriptionCost.toLocaleString('ko-KR')}원
+                </span>
+                이
+                <br />
+                구독으로 나가고 있어요
+              </>
+            )}
           </h1>
-          <p className="mt-[7px] text-[19px] leading-normal text-[#80869c]">
+          <p
+            className={cn(
+              'text-[19px] leading-normal text-[#80869c]',
+              allClear ? 'mt-[13px]' : 'mt-[7px]',
+            )}
+          >
             {data.dailyCheckText}
           </p>
         </section>
 
-        <div className="relative mt-[44px] -ml-[13px] flex flex-wrap items-start gap-3.5">
+        <div
+          className={cn(
+            'relative -ml-[13px] flex flex-wrap items-start gap-3.5',
+            allClear ? 'mt-[31px]' : 'mt-[44px]',
+          )}
+        >
           <button
             type="button"
             aria-pressed={selectedMailbox === null}
@@ -168,7 +191,12 @@ function HomePage() {
           </button>
         )}
 
-        <div className="mt-[17px] mr-1.5 ml-0.5 grid grid-cols-1 gap-[26px] lg:grid-cols-3">
+        <div
+          className={cn(
+            'mr-1.5 ml-0.5 grid grid-cols-1 gap-[26px] lg:grid-cols-3',
+            data.pendingTask ? 'mt-[17px]' : 'mt-[39px]',
+          )}
+        >
           <ServiceCard
             title={
               <>
@@ -188,10 +216,24 @@ function HomePage() {
             title={`보안 알림 ${securityAlerts.length}건`}
             items={securityAlerts}
             onSelect={openService}
+            emptyState={
+              <img
+                src={securityEmpty}
+                alt=""
+                width={95}
+                height={95}
+                className="mx-auto mt-[33px]"
+              />
+            }
           />
         </div>
 
-        <section className="relative mt-[17px] mr-1.5 ml-0.5 flex h-[86px] items-center rounded-3xl bg-linear-to-r from-[#fff6ec] to-white to-30% pl-[208px] drop-shadow-[0px_4px_10px_rgba(30,40,90,0.06)]">
+        <section
+          className={cn(
+            'relative mr-1.5 ml-0.5 flex h-[86px] items-center rounded-3xl bg-linear-to-r to-white to-30% pl-[208px] drop-shadow-[0px_4px_10px_rgba(30,40,90,0.06)]',
+            hasDormant ? 'mt-[17px] from-[#fff6ec]' : 'mt-7 from-[#e9ecf5]',
+          )}
+        >
           <img
             src={bannerShadow}
             alt=""
@@ -200,7 +242,7 @@ function HomePage() {
             className="absolute top-[58px] left-[67px]"
           />
           <img
-            src={bannerMascot}
+            src={hasDormant ? bannerMascot : bannerMascotCalm}
             alt=""
             width={78}
             height={62}
@@ -208,21 +250,28 @@ function HomePage() {
           />
           <div className="flex min-w-0 flex-col gap-1.5 self-start pt-5">
             <p className="truncate pt-0.5 pb-[3px] text-[17px] leading-normal font-bold text-[#141c3a]">
-              1년 넘게 안 쓴 계정 {data.dormant.count}개
+              {hasDormant
+                ? `1년 넘게 안 쓴 계정 ${data.dormant.count}개`
+                : '1년 넘게 안 쓴 계정이 생기면 여기에 알려드려요'}
             </p>
             <p className="truncate pt-px pb-[3px] text-[15px] leading-normal text-[#80869c]">
               {data.dormant.examples} · 정리하면 개인정보도 줄어요
             </p>
           </div>
+          {hasDormant && (
+            <button
+              type="button"
+              className="mr-[20px] ml-auto flex h-14 shrink-0 items-center rounded-[28px] bg-[#ffe9d3] px-[26px] text-[17px] leading-normal font-bold text-[#f26a1b]"
+            >
+              추천 {data.dormant.recommendedCount}개 탈퇴 맡기기 ›
+            </button>
+          )}
           <button
             type="button"
-            className="mr-[20px] ml-auto flex h-14 shrink-0 items-center rounded-[28px] bg-[#ffe9d3] px-[26px] text-[17px] leading-normal font-bold text-[#f26a1b]"
-          >
-            추천 {data.dormant.recommendedCount}개 탈퇴 맡기기 ›
-          </button>
-          <button
-            type="button"
-            className="shrink-0 pr-7 pb-0.5 pl-[22px] text-[15px] leading-normal text-[#5b6280]"
+            className={cn(
+              'shrink-0 pr-7 pb-0.5 pl-[22px] text-[15px] leading-normal text-[#5b6280]',
+              !hasDormant && 'ml-auto',
+            )}
           >
             전체 ›
           </button>

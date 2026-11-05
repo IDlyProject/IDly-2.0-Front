@@ -179,3 +179,13 @@ export const homeMock: HomeSummary = {
     recommendedCount: 3,
   },
 }
+
+export const homeAllClearMock: HomeSummary = {
+  ...homeMock,
+  pendingTask: null,
+  favorites: homeMock.favorites.map((item) =>
+    item.id === 'naver' ? { ...item, description: '오늘 로그인' } : item,
+  ),
+  securityAlerts: [],
+  dormant: { ...homeMock.dormant, count: 0, recommendedCount: 0 },
+}

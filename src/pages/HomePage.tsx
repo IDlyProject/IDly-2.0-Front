@@ -12,6 +12,7 @@ import {
   isRunFinished,
   useMailboxRun,
 } from '@/features/home/hooks/useMailboxRun.ts'
+import type { AccountCategory } from '@/features/accounts/types.ts'
 import type { HomeMailbox, ServiceItem } from '@/features/home/types.ts'
 import type { AddedMailboxState } from '@/features/onboarding/hooks/useConnectMailbox.ts'
 import spinnerIcon from '@/shared/assets/icons/spinner.svg'
@@ -133,6 +134,12 @@ function HomePage() {
     ? activeAlerts.find((alert) => alert.id === openedService.item.id)
         ?.securityAlert
     : undefined
+
+  const viewAll = (category: AccountCategory) => {
+    const params = new URLSearchParams({ category })
+    if (selectedMailbox) params.set('mailbox', selectedMailbox)
+    navigate(`/accounts?${params}`)
+  }
 
   const chipState = (selected: boolean) =>
     selected ? 'bg-[#141c3a] font-bold text-white' : 'bg-white text-[#3a4160]'
@@ -321,11 +328,13 @@ function HomePage() {
             }
             items={favorites}
             onSelect={openService}
+            onViewAll={() => viewAll('favorites')}
           />
           <ServiceCard
             title={`구독 ${subscriptions.length}개`}
             items={subscriptions}
             onSelect={openService}
+            onViewAll={() => viewAll('subscriptions')}
             emptyState={
               <img
                 src={securityEmpty}
@@ -340,6 +349,7 @@ function HomePage() {
             title={`보안 알림 ${securityAlerts.length}건`}
             items={securityAlerts}
             onSelect={openService}
+            onViewAll={() => viewAll('security')}
             emptyState={
               <img
                 src={securityEmpty}
@@ -392,6 +402,7 @@ function HomePage() {
           )}
           <button
             type="button"
+            onClick={() => viewAll('dormant')}
             className={cn(
               'shrink-0 pr-7 pb-0.5 pl-[22px] text-[15px] leading-normal text-[#5b6280]',
               !hasDormant && 'ml-auto',

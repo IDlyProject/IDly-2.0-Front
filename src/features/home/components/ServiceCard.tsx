@@ -17,6 +17,7 @@ type ServiceCardProps = {
   items: ServiceItem[]
   onSelect: (item: ServiceItem, anchor: HTMLElement) => void
   emptyState?: ReactNode
+  onViewAll: () => void
   className?: string
 }
 
@@ -25,6 +26,7 @@ function ServiceCard({
   items,
   onSelect,
   emptyState,
+  onViewAll,
   className,
 }: ServiceCardProps) {
   return (
@@ -40,6 +42,7 @@ function ServiceCard({
         </h2>
         <button
           type="button"
+          onClick={onViewAll}
           className="pb-0.5 text-[15px] leading-normal text-[#5b6280]"
         >
           전체 ›

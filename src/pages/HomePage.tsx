@@ -395,6 +395,7 @@ function HomePage() {
           {hasDormant && (
             <button
               type="button"
+              onClick={() => navigate('/dormant?select=recommended')}
               className="mr-[20px] ml-auto flex h-14 shrink-0 items-center rounded-[28px] bg-[#ffe9d3] px-[26px] text-[17px] leading-normal font-bold text-[#f26a1b]"
             >
               추천 {data.dormant.recommendedCount}개 탈퇴 맡기기 ›
@@ -402,7 +403,7 @@ function HomePage() {
           )}
           <button
             type="button"
-            onClick={() => viewAll('dormant')}
+            onClick={() => navigate('/dormant')}
             className={cn(
               'shrink-0 pr-7 pb-0.5 pl-[22px] text-[15px] leading-normal text-[#5b6280]',
               !hasDormant && 'ml-auto',

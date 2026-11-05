@@ -31,7 +31,8 @@ export const homeMock: HomeSummary = {
     { email: GMAIL, provider: 'gmail', count: 41 },
     { email: NAVER, provider: 'naver', count: 11 },
   ],
-  pendingTask: { title: '쿠팡 해지에 로그인이 필요해요' },
+  lastCheckedText: '오늘 00:00',
+  pendingTask: { title: '쿠팡 해지에 로그인이 필요해요', mailbox: GMAIL },
   favorites: [
     {
       id: 'coupang',
@@ -127,13 +128,13 @@ export const homeMock: HomeSummary = {
       price: '7,890원',
     },
     {
-      id: 'naver-plus',
-      name: '네이버플러스 멤버십',
-      service: 'naver',
-      mailbox: NAVER,
+      id: 'notion',
+      name: 'Notion',
+      service: 'notion',
+      mailbox: GMAIL,
       dot: 'blue',
-      description: '10월 25일 결제',
-      price: '4,900원',
+      description: '2027년 3월 갱신',
+      price: '11,200원',
     },
   ],
   securityAlerts: [
@@ -160,7 +161,7 @@ export const homeMock: HomeSummary = {
       id: 'toss',
       name: '토스',
       service: 'toss',
-      mailbox: GMAIL,
+      mailbox: NAVER,
       dot: 'orange',
       description: '의심스러운 로그인 시도 2번',
       securityAlert: {

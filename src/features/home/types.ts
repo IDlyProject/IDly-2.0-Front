@@ -60,7 +60,8 @@ export type HomeSummary = {
   dailyCheckText: string
   totalMailCount: number
   mailboxes: HomeMailbox[]
-  pendingTask: { title: string } | null
+  lastCheckedText: string
+  pendingTask: { title: string; mailbox: string } | null
   favorites: ServiceItem[]
   subscriptions: ServiceItem[]
   securityAlerts: ServiceItem[]

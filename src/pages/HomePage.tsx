@@ -109,8 +109,26 @@ function HomePage() {
   )
   const securityAlerts = byMailbox(activeAlerts)
   const hasDormant = data.dormant.count > 0
-  const hasNotice = !!searching || !!data.pendingTask
-  const allClear = !hasNotice && activeAlerts.length === 0 && !hasDormant
+  const pendingTask =
+    data.pendingTask &&
+    (!selectedMailbox || data.pendingTask.mailbox === selectedMailbox)
+      ? data.pendingTask
+      : null
+  const hasNotice = !!searching || !!pendingTask
+  const allClear =
+    !searching && !data.pendingTask && activeAlerts.length === 0 && !hasDormant
+  const selectedMailboxInfo = mailboxes.find(
+    (mailbox) => mailbox.email === selectedMailbox,
+  )
+  const heroVariant = selectedMailboxInfo
+    ? 'mailbox'
+    : allClear
+      ? 'clear'
+      : 'default'
+  const mailboxMonthlyCost = subscriptions.reduce(
+    (sum, item) => sum + Number(item.price?.replace(/\D/g, '') ?? 0),
+    0,
+  )
   const openedAlert = openedService
     ? activeAlerts.find((alert) => alert.id === openedService.item.id)
         ?.securityAlert
@@ -132,9 +150,28 @@ function HomePage() {
           className="pointer-events-none absolute top-0 left-[-81px] hidden max-w-none lg:block"
         />
 
-        <section className={cn('relative pl-[7px]', allClear && 'pt-[55px]')}>
-          <h1 className="text-[34px] leading-[51px] font-bold tracking-[-1.5px] text-[#141c3a]">
-            {allClear ? (
+        <section
+          className={cn(
+            'relative pl-[7px]',
+            heroVariant === 'clear' && 'pt-[55px]',
+            heroVariant === 'mailbox' && 'pt-2',
+          )}
+        >
+          <h1
+            className={cn(
+              'text-[34px] font-bold text-[#141c3a]',
+              heroVariant === 'mailbox'
+                ? 'leading-[1.4]'
+                : 'leading-[51px] tracking-[-1.5px]',
+            )}
+          >
+            {selectedMailboxInfo ? (
+              <>
+                {selectedMailboxInfo.email}으로
+                <br />
+                가입한 계정 {selectedMailboxInfo.count}개
+              </>
+            ) : allClear ? (
               `${data.userName} 님, 지금은 정리할 게 없어요`
             ) : (
               <>
@@ -151,17 +188,31 @@ function HomePage() {
           <p
             className={cn(
               'text-[19px] leading-normal text-[#80869c]',
-              allClear ? 'mt-[13px]' : 'mt-[7px]',
+              {
+                default: 'mt-[7px]',
+                clear: 'mt-[13px]',
+                mailbox: 'mt-2',
+              }[heroVariant],
             )}
           >
-            {data.dailyCheckText}
+            {selectedMailboxInfo
+              ? `${
+                  mailboxMonthlyCost > 0
+                    ? `이 메일로 매달 ${mailboxMonthlyCost.toLocaleString('ko-KR')}원이 나가요`
+                    : '이 메일로 나가는 구독은 없어요'
+                } · ${data.lastCheckedText} 확인`
+              : data.dailyCheckText}
           </p>
         </section>
 
         <div
           className={cn(
             'relative -ml-[13px] flex flex-wrap items-start gap-3.5',
-            allClear ? 'mt-[31px]' : 'mt-[44px]',
+            {
+              default: 'mt-[44px]',
+              clear: 'mt-[31px]',
+              mailbox: 'mt-[41px]',
+            }[heroVariant],
           )}
         >
           <button
@@ -199,7 +250,7 @@ function HomePage() {
                 <span
                   className={cn(
                     'pb-px whitespace-pre',
-                    selected ? 'text-white/70' : 'text-[#5b6280]',
+                    selected ? 'text-white' : 'text-[#5b6280]',
                   )}
                 >
                   {searching?.email === mailbox.email
@@ -237,7 +288,7 @@ function HomePage() {
             </span>
           </div>
         ) : (
-          data.pendingTask && (
+          pendingTask && (
             <button
               type="button"
               className="mt-[30px] flex h-[68px] w-full items-center rounded-[20px] bg-white px-7 text-left drop-shadow-[0px_4px_10px_rgba(30,40,90,0.07)]"
@@ -246,7 +297,7 @@ function HomePage() {
                 !
               </span>
               <span className="min-w-0 truncate pt-0.5 pb-[3px] text-[19px] leading-normal font-semibold text-[#141c3a]">
-                {data.pendingTask.title}
+                {pendingTask.title}
               </span>
               <span className="ml-auto shrink-0 pt-0.5 pb-[3px] pl-6 text-[19px] leading-normal font-semibold text-[#f26a1b]">
                 이어가기 ›
@@ -275,6 +326,15 @@ function HomePage() {
             title={`구독 ${subscriptions.length}개`}
             items={subscriptions}
             onSelect={openService}
+            emptyState={
+              <img
+                src={securityEmpty}
+                alt=""
+                width={95}
+                height={95}
+                className="mx-auto mt-[33px]"
+              />
+            }
           />
           <ServiceCard
             title={`보안 알림 ${securityAlerts.length}건`}

@@ -11,6 +11,7 @@ export type ConnectErrorState = {
   hints: string[]
   provider: string | null
   retryPath: string
+  retryState: unknown
 }
 
 // IMAP 연결 실패는 O2c 화면으로, 나머지 오류는 폼에서 문구만 보여준다
@@ -24,13 +25,24 @@ const IMAP_ERROR_CODES = new Set([
   'INTERNAL',
 ])
 
-export function useConnectMailbox() {
+export type AddedMailboxState = {
+  addedMailbox: { email: string; runId: string }
+}
+
+export function useConnectMailbox({ returnHome = false } = {}) {
   const navigate = useNavigate()
   const location = useLocation()
 
   const mutation = useMutation({
     mutationFn: connectMailbox,
     onSuccess: ({ mailbox, run }) => {
+      if (returnHome) {
+        const state: AddedMailboxState = {
+          addedMailbox: { email: mailbox.email, runId: run.id },
+        }
+        navigate('/', { state })
+        return
+      }
       navigate('/onboarding/searching', {
         state: { email: mailbox.email, mailboxId: mailbox.id, runId: run.id },
       })
@@ -47,6 +59,7 @@ export function useConnectMailbox() {
           hints: error.detail.hints ?? [],
           provider: error.detail.provider ?? null,
           retryPath: location.pathname,
+          retryState: location.state,
         }
         navigate('/onboarding/mail/error', { state })
       }

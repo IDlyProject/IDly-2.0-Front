@@ -6,17 +6,20 @@ import Button from '@/shared/components/ui/Button.tsx'
 import InfoNotice from '@/shared/components/ui/InfoNotice.tsx'
 import TextField from '@/shared/components/ui/TextField.tsx'
 
-type LocationState = { email?: string } | null
+type LocationState = { email?: string; returnHome?: boolean } | null
 
 function Step2CustomPage() {
   const location = useLocation()
-  const initialEmail = (location.state as LocationState)?.email ?? ''
+  const state = location.state as LocationState
+  const initialEmail = state?.email ?? ''
 
   const [email, setEmail] = useState(initialEmail)
   const [imapHost, setImapHost] = useState('')
   const [port, setPort] = useState('993')
   const [password, setPassword] = useState('')
-  const { connect, isPending, errorMessage } = useConnectMailbox()
+  const { connect, isPending, errorMessage } = useConnectMailbox({
+    returnHome: state?.returnHome,
+  })
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()

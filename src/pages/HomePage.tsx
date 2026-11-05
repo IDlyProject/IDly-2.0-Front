@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import HomeHeader from '@/features/home/components/HomeHeader.tsx'
 import ServiceCard from '@/features/home/components/ServiceCard.tsx'
 import AccountPanelContent from '@/features/home/components/AccountPanelContent.tsx'
@@ -8,7 +8,13 @@ import ServicePanel, {
   PANEL_CLOSE_DURATION,
 } from '@/features/home/components/ServicePanel.tsx'
 import { homeAllClearMock, homeMock } from '@/features/home/mockData.ts'
-import type { ServiceItem } from '@/features/home/types.ts'
+import {
+  isRunFinished,
+  useMailboxRun,
+} from '@/features/home/hooks/useMailboxRun.ts'
+import type { HomeMailbox, ServiceItem } from '@/features/home/types.ts'
+import type { AddedMailboxState } from '@/features/onboarding/hooks/useConnectMailbox.ts'
+import spinnerIcon from '@/shared/assets/icons/spinner.svg'
 import { cn } from '@/shared/lib/cn.ts'
 import heroBackground from '@/shared/assets/images/home/hero-background.svg'
 import bannerMascot from '@/shared/assets/images/home/banner-mascot.svg'
@@ -20,13 +26,41 @@ const chipBase =
   'flex h-[46px] items-center rounded-[23px] px-5 text-[17px] leading-normal'
 const chipShadow = 'drop-shadow-[0px_2px_5px_rgba(30,40,90,0.06)]'
 
+function detectProvider(email: string): HomeMailbox['provider'] {
+  const domain = email.split('@')[1]?.toLowerCase()
+  if (domain === 'gmail.com') return 'gmail'
+  if (domain === 'naver.com') return 'naver'
+  return 'other'
+}
+
 type OpenedService = { item: ServiceItem; anchor: HTMLElement; seq: number }
 
 function HomePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const data =
-    searchParams.get('mock') === 'clear' ? homeAllClearMock : homeMock
+  const mockParam = searchParams.get('mock')
+  const data = mockParam === 'clear' ? homeAllClearMock : homeMock
+
+  const addedMailbox = (useLocation().state as AddedMailboxState | null)
+    ?.addedMailbox
+  const addedRun = useMailboxRun(addedMailbox?.runId)
+  const searching =
+    mockParam === 'searching'
+      ? { email: 'jihye@naver.com', percent: 38 }
+      : addedMailbox && !isRunFinished(addedRun)
+        ? { email: addedMailbox.email, percent: addedRun?.percent ?? 0 }
+        : null
+  const mailboxes: HomeMailbox[] =
+    searching && !data.mailboxes.some((m) => m.email === searching.email)
+      ? [
+          ...data.mailboxes,
+          {
+            email: searching.email,
+            provider: detectProvider(searching.email),
+            count: 0,
+          },
+        ]
+      : data.mailboxes
   const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null)
   const [openedService, setOpenedService] = useState<OpenedService | null>(null)
   const openService = (item: ServiceItem, anchor: HTMLElement) =>
@@ -75,7 +109,8 @@ function HomePage() {
   )
   const securityAlerts = byMailbox(activeAlerts)
   const hasDormant = data.dormant.count > 0
-  const allClear = !data.pendingTask && activeAlerts.length === 0 && !hasDormant
+  const hasNotice = !!searching || !!data.pendingTask
+  const allClear = !hasNotice && activeAlerts.length === 0 && !hasDormant
   const openedAlert = openedService
     ? activeAlerts.find((alert) => alert.id === openedService.item.id)
         ?.securityAlert
@@ -137,7 +172,7 @@ function HomePage() {
           >
             모든 메일 {data.totalMailCount}
           </button>
-          {data.mailboxes.map((mailbox) => {
+          {mailboxes.map((mailbox) => {
             const selected = selectedMailbox === mailbox.email
             return (
               <button
@@ -151,16 +186,25 @@ function HomePage() {
                   <span className="flex size-[22px] items-center justify-center rounded-md border border-[#eee] bg-white text-[13px] leading-normal font-bold text-[#ea4335]">
                     M
                   </span>
-                ) : (
+                ) : mailbox.provider === 'naver' ? (
                   <span className="flex size-[22px] items-center justify-center rounded-[11px] bg-[#1fc16b] text-[13px] leading-normal font-bold text-white">
                     N
+                  </span>
+                ) : (
+                  <span className="flex size-[22px] items-center justify-center rounded-[11px] bg-[#eceef5] text-[13px] leading-normal font-bold text-[#5b6280] uppercase">
+                    {mailbox.email.charAt(0)}
                   </span>
                 )}
                 {mailbox.email}
                 <span
-                  className={`pb-px ${selected ? 'text-white/70' : 'text-[#5b6280]'}`}
+                  className={cn(
+                    'pb-px whitespace-pre',
+                    selected ? 'text-white/70' : 'text-[#5b6280]',
+                  )}
                 >
-                  {mailbox.count}
+                  {searching?.email === mailbox.email
+                    ? `찾는중  ${searching.percent}%`
+                    : mailbox.count}
                 </span>
               </button>
             )
@@ -174,27 +218,47 @@ function HomePage() {
           </button>
         </div>
 
-        {data.pendingTask && (
-          <button
-            type="button"
-            className="mt-[30px] flex h-[68px] w-full items-center rounded-[20px] bg-white px-7 text-left drop-shadow-[0px_4px_10px_rgba(30,40,90,0.07)]"
+        {searching ? (
+          <div
+            role="status"
+            className="mt-[30px] flex h-[68px] w-full items-center rounded-[20px] bg-linear-to-r from-[#e9ecf5] to-white px-7 drop-shadow-[0px_4px_10px_rgba(30,40,90,0.07)]"
           >
-            <span className="mr-[22px] flex size-[38px] items-center justify-center rounded-[19px] bg-[#ffd9b8] pt-[7.5px] pb-[8.5px] text-xl leading-normal font-bold text-[#f26a1b]">
-              !
+            <span className="mr-[22px] flex size-[38px] shrink-0 items-center justify-center rounded-[19px] bg-[#202f61]">
+              <img
+                src={spinnerIcon}
+                alt=""
+                width={26}
+                height={26}
+                className="animate-spin [animation-duration:2s] motion-reduce:animate-none"
+              />
             </span>
             <span className="min-w-0 truncate pt-0.5 pb-[3px] text-[19px] leading-normal font-semibold text-[#141c3a]">
-              {data.pendingTask.title}
+              {searching.email}에서 계정을 찾고 있어요 · {searching.percent}%
             </span>
-            <span className="ml-auto shrink-0 pt-0.5 pb-[3px] pl-6 text-[19px] leading-normal font-semibold text-[#f26a1b]">
-              이어가기 ›
-            </span>
-          </button>
+          </div>
+        ) : (
+          data.pendingTask && (
+            <button
+              type="button"
+              className="mt-[30px] flex h-[68px] w-full items-center rounded-[20px] bg-white px-7 text-left drop-shadow-[0px_4px_10px_rgba(30,40,90,0.07)]"
+            >
+              <span className="mr-[22px] flex size-[38px] items-center justify-center rounded-[19px] bg-[#ffd9b8] pt-[7.5px] pb-[8.5px] text-xl leading-normal font-bold text-[#f26a1b]">
+                !
+              </span>
+              <span className="min-w-0 truncate pt-0.5 pb-[3px] text-[19px] leading-normal font-semibold text-[#141c3a]">
+                {data.pendingTask.title}
+              </span>
+              <span className="ml-auto shrink-0 pt-0.5 pb-[3px] pl-6 text-[19px] leading-normal font-semibold text-[#f26a1b]">
+                이어가기 ›
+              </span>
+            </button>
+          )
         )}
 
         <div
           className={cn(
             'mr-1.5 ml-0.5 grid grid-cols-1 gap-[26px] lg:grid-cols-3',
-            data.pendingTask ? 'mt-[17px]' : 'mt-[39px]',
+            hasNotice ? 'mt-[17px]' : 'mt-[39px]',
           )}
         >
           <ServiceCard

@@ -56,7 +56,11 @@ function Step2ErrorPage() {
         variant="mirageCompact"
         arrow
         className="mt-[15.5px]"
-        onClick={() => navigate(error?.retryPath ?? '/onboarding/mail/custom')}
+        onClick={() =>
+          navigate(error?.retryPath ?? '/onboarding/mail/custom', {
+            state: error?.retryState,
+          })
+        }
       >
         다시 연결하기
       </Button>

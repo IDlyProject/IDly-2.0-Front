@@ -50,7 +50,7 @@ export type ServiceDetail = {
 
 export type HomeMailbox = {
   email: string
-  provider: 'gmail' | 'naver'
+  provider: 'gmail' | 'naver' | 'other'
   count: number
 }
 

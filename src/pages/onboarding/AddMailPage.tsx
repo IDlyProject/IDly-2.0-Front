@@ -33,12 +33,16 @@ function AddMailPage() {
     password,
     setPassword,
   } = useMailConnectForm()
-  const { connect, isPending, errorMessage } = useConnectMailbox()
+  const { connect, isPending, errorMessage } = useConnectMailbox({
+    returnHome: true,
+  })
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!guide) {
-      navigate('/onboarding/mail/custom', { state: { email } })
+      navigate('/onboarding/mail/custom', {
+        state: { email, returnHome: true },
+      })
       return
     }
     connect({ email: email.trim(), password })

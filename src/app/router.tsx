@@ -1,5 +1,9 @@
 import { createBrowserRouter } from 'react-router'
+import AccountsPage from '@/pages/AccountsPage.tsx'
+import AuthCallbackPage from '@/pages/auth/AuthCallbackPage.tsx'
+import DormantAccountsPage from '@/pages/DormantAccountsPage.tsx'
 import HomePage from '@/pages/HomePage.tsx'
+import ProfilePage from '@/pages/ProfilePage.tsx'
 import UiPreviewPage from '@/pages/dev/UiPreviewPage.tsx'
 import AddMailPage from '@/pages/onboarding/AddMailPage.tsx'
 import OnboardingLayout from '@/pages/onboarding/OnboardingLayout.tsx'
@@ -12,6 +16,10 @@ import Step4Page from '@/pages/onboarding/Step4Page.tsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
+  { path: '/accounts', element: <AccountsPage /> },
+  { path: '/dormant', element: <DormantAccountsPage /> },
+  { path: '/profile', element: <ProfilePage /> },
+  { path: '/auth/callback', element: <AuthCallbackPage /> },
   {
     path: '/onboarding',
     element: <OnboardingLayout />,

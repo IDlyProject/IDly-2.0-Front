@@ -2,33 +2,50 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import MascotStatus from '@/features/onboarding/components/MascotStatus.tsx'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
-import { useMockScanProgress } from '@/features/onboarding/hooks/useMockScanProgress.ts'
+import { useRunProgress } from '@/features/onboarding/hooks/useRunProgress.ts'
 import Button from '@/shared/components/ui/Button.tsx'
 
-type LocationState = { email?: string } | null
+type LocationState = { email?: string; runId?: string } | null
 
 const formatCount = (n: number) => n.toLocaleString('ko-KR')
 
 function Step3Page() {
   const location = useLocation()
   const navigate = useNavigate()
-  const email = (location.state as LocationState)?.email
+  const state = location.state as LocationState
+  const {
+    run,
+    resume,
+    isResuming,
+    resumeErrorMessage,
+    isUnauthorized,
+    isNotFound,
+  } = useRunProgress(state?.runId)
 
-  // TODO: 검수용으로 4,712통에서 한 번 실패(O3b) 후 다시 연결하면 이어서 진행
-  const { scanned, total, status, retry } = useMockScanProgress(12480, {
-    failAt: 4712,
-  })
-  const ratio = total > 0 ? scanned / total : 0
-  const percent = Math.round(ratio * 100)
+  const email = run?.email ?? state?.email
+  const scanned = run?.processed ?? 0
+  const total = run?.total ?? 0
+  const percent = run?.percent ?? 0
+  const ratio = percent / 100
+  const status = run?.status
 
   useEffect(() => {
-    if (status !== 'done') return
+    if (isUnauthorized) navigate('/onboarding', { replace: true })
+    else if (isNotFound) navigate('/onboarding/mail', { replace: true })
+  }, [isUnauthorized, isNotFound, navigate])
+
+  useEffect(() => {
+    if (status !== 'completed') return
     const timer = setTimeout(
-      () => navigate('/onboarding/found', { state: { email }, replace: true }),
+      () =>
+        navigate('/onboarding/found', {
+          state: { email, foundCount: run?.foundAccountCount },
+          replace: true,
+        }),
       800,
     )
     return () => clearTimeout(timer)
-  }, [status, email, navigate])
+  }, [status, email, run?.foundAccountCount, navigate])
 
   return (
     <main className="flex w-full flex-col items-center">
@@ -42,7 +59,10 @@ function Step3Page() {
             total={total}
             ratio={ratio}
             percent={percent}
-            onRetry={retry}
+            canResume={run?.failure?.retryable ?? false}
+            isResuming={isResuming}
+            errorMessage={resumeErrorMessage ?? run?.failure?.message}
+            onRetry={resume}
           />
         </>
       ) : (
@@ -126,8 +146,16 @@ function FailedContent({
   total,
   ratio,
   percent,
+  canResume,
+  isResuming,
+  errorMessage,
   onRetry,
-}: ProgressProps & { onRetry: () => void }) {
+}: ProgressProps & {
+  canResume: boolean
+  isResuming: boolean
+  errorMessage?: string | null
+  onRetry: () => void
+}) {
   return (
     <section className="font-noto flex w-[440px] flex-col gap-6 pt-10 leading-[1.4]">
       <div
@@ -155,9 +183,20 @@ function FailedContent({
         앱 비밀번호가 바뀌었거나 IMAP 사용이 꺼졌을 수 있어요
       </p>
 
-      <Button variant="dark" className="font-sans" onClick={onRetry}>
-        다시 연결하기
+      <Button
+        variant="dark"
+        className="font-sans"
+        onClick={onRetry}
+        disabled={!canResume || isResuming}
+      >
+        {isResuming ? '다시 연결하는 중…' : '다시 연결하기'}
       </Button>
+
+      {errorMessage && (
+        <p role="alert" className="text-center text-xs text-[#e5484d]">
+          {errorMessage}
+        </p>
+      )}
 
       <p className="text-[13px] text-[#8b95a1] underline">
         잠깐 끊긴 거라면 다시 시도 · 찾던 곳부터 이어서 해요

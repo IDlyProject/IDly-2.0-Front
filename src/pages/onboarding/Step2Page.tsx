@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import GuideStepCard from '@/features/onboarding/components/GuideStepCard.tsx'
 import StepIndicator from '@/features/onboarding/components/StepIndicator.tsx'
+import { useConnectMailbox } from '@/features/onboarding/hooks/useConnectMailbox.ts'
 import { useMailConnectForm } from '@/features/onboarding/hooks/useMailConnectForm.ts'
 import Button from '@/shared/components/ui/Button.tsx'
 import InfoNotice from '@/shared/components/ui/InfoNotice.tsx'
@@ -18,6 +19,7 @@ function Step2Page() {
     password,
     setPassword,
   } = useMailConnectForm()
+  const { connect, isPending, errorMessage } = useConnectMailbox()
 
   const handlePaste = () =>
     navigator.clipboard
@@ -31,9 +33,7 @@ function Step2Page() {
       navigate('/onboarding/mail/custom', { state: { email } })
       return
     }
-    // TODO: 메일 연결 API 연동 전까지 검수용으로 바로 O3로 이동
-    console.info('connect', guide.id, email)
-    navigate('/onboarding/searching', { state: { email } })
+    connect({ email: email.trim(), password })
   }
 
   return (
@@ -110,9 +110,15 @@ function Step2Page() {
             </InfoNotice>
           )}
 
-          <Button type="submit" variant="primary" arrow>
-            연결하기
+          <Button type="submit" variant="primary" arrow disabled={isPending}>
+            {isPending ? '연결하는 중…' : '연결하기'}
           </Button>
+
+          {errorMessage && (
+            <p role="alert" className="text-center text-xs text-[#e5484d]">
+              {errorMessage}
+            </p>
+          )}
 
           <p className="flex items-center justify-center gap-1 pt-[9px] pb-[1.75px] text-[#9ea5b4]">
             <span className="text-[11.5px] leading-[17.25px]">

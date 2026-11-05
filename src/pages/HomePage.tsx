@@ -2,7 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import HomeHeader from '@/features/home/components/HomeHeader.tsx'
 import ServiceCard from '@/features/home/components/ServiceCard.tsx'
-import ServicePanel from '@/features/home/components/ServicePanel.tsx'
+import AccountPanelContent from '@/features/home/components/AccountPanelContent.tsx'
+import SecurityAlertPanelContent from '@/features/home/components/SecurityAlertPanelContent.tsx'
+import ServicePanel, {
+  PANEL_CLOSE_DURATION,
+} from '@/features/home/components/ServicePanel.tsx'
 import { homeMock } from '@/features/home/mockData.ts'
 import type { ServiceItem } from '@/features/home/types.ts'
 import heroBackground from '@/shared/assets/images/home/hero-background.svg'
@@ -41,6 +45,10 @@ function HomePage() {
       ids.includes(id) ? ids.filter((v) => v !== id) : [...ids, id],
     )
 
+  const [dismissedAlertIds, setDismissedAlertIds] = useState<string[]>([])
+  const dismissAlert = (id: string) =>
+    setDismissedAlertIds((ids) => [...ids, id])
+
   const allServices = [
     ...data.favorites,
     ...data.subscriptions,
@@ -57,7 +65,14 @@ function HomePage() {
       : items
   const favorites = byMailbox(favoriteItems)
   const subscriptions = byMailbox(data.subscriptions)
-  const securityAlerts = byMailbox(data.securityAlerts)
+  const activeAlerts = data.securityAlerts.filter(
+    (item) => !dismissedAlertIds.includes(item.id),
+  )
+  const securityAlerts = byMailbox(activeAlerts)
+  const openedAlert = openedService
+    ? activeAlerts.find((alert) => alert.id === openedService.item.id)
+        ?.securityAlert
+    : undefined
 
   const chipState = (selected: boolean) =>
     selected ? 'bg-[#141c3a] font-bold text-white' : 'bg-white text-[#3a4160]'
@@ -217,12 +232,38 @@ function HomePage() {
       {openedService && (
         <ServicePanel
           key={openedService.seq}
-          item={openedService.item}
+          label={`${openedService.item.name} 상세`}
           anchor={openedService.anchor}
-          favorite={favoriteIds.includes(openedService.item.id)}
-          onToggleFavorite={() => toggleFavorite(openedService.item.id)}
+          variant={openedAlert ? 'security' : 'account'}
           onClose={() => closeService(openedService.seq)}
-        />
+        >
+          {(close) => {
+            const { item } = openedService
+            const favorite = favoriteIds.includes(item.id)
+            const onToggleFavorite = () => toggleFavorite(item.id)
+            return openedAlert ? (
+              <SecurityAlertPanelContent
+                item={item}
+                alert={openedAlert}
+                favorite={favorite}
+                onToggleFavorite={onToggleFavorite}
+                onDismiss={() => {
+                  close()
+                  window.setTimeout(
+                    () => dismissAlert(item.id),
+                    PANEL_CLOSE_DURATION,
+                  )
+                }}
+              />
+            ) : (
+              <AccountPanelContent
+                item={item}
+                favorite={favorite}
+                onToggleFavorite={onToggleFavorite}
+              />
+            )
+          }}
+        </ServicePanel>
       )}
     </div>
   )

@@ -1,7 +1,25 @@
-import type { HomeSummary } from './types.ts'
+import type { HomeSummary, SecurityAction } from './types.ts'
 
 const GMAIL = 'jihye.kim@gmail.com'
 const NAVER = 'jihye@naver.com'
+
+const SECURITY_ACTIONS: SecurityAction[] = [
+  {
+    id: 'change-password',
+    title: '비밀번호 변경',
+    description: '새 비밀번호는 작업 탭에서 직접 입력해요',
+  },
+  {
+    id: 'logout-all',
+    title: '모든 기기 로그아웃',
+    description: '다른 기기의 로그인을 끊어요',
+  },
+  {
+    id: 'enable-2fa',
+    title: '2단계 인증 켜기',
+    description: '다음부터 로그인할 때 한 번 더 확인해요',
+  },
+]
 
 // TODO: 홈 API 연동 후 제거
 export const homeMock: HomeSummary = {
@@ -126,6 +144,17 @@ export const homeMock: HomeSummary = {
       mailbox: NAVER,
       dot: 'green',
       description: '9월 27일 새 기기 로그인',
+      securityAlert: {
+        title: '9월 27일, 처음 보는 기기에서 로그인했어요',
+        actions: SECURITY_ACTIONS,
+        records: [
+          {
+            date: '9월 27일',
+            title: '[네이버] 새로운 기기에서 로그인되었습니다',
+          },
+          { date: '9월 27일', title: '[네이버] 로그인 알림' },
+        ],
+      },
     },
     {
       id: 'toss',
@@ -134,6 +163,14 @@ export const homeMock: HomeSummary = {
       mailbox: GMAIL,
       dot: 'orange',
       description: '의심스러운 로그인 시도 2번',
+      securityAlert: {
+        title: '10월 2일, 의심스러운 로그인 시도가 2번 있었어요',
+        actions: SECURITY_ACTIONS,
+        records: [
+          { date: '10월 2일', title: '[토스] 로그인 시도 알림' },
+          { date: '10월 2일', title: '[토스] 로그인 시도 알림' },
+        ],
+      },
     },
   ],
   dormant: {

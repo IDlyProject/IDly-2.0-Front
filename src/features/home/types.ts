@@ -12,6 +12,19 @@ export type ServiceItem = {
   description: string
   price?: string
   detail?: ServiceDetail
+  securityAlert?: SecurityAlertDetail
+}
+
+export type SecurityAction = {
+  id: string
+  title: string
+  description: string
+}
+
+export type SecurityAlertDetail = {
+  title: string
+  actions: SecurityAction[]
+  records: { date: string; title: string }[]
 }
 
 export type MailRecordKind = 'payment' | 'login' | 'signup'

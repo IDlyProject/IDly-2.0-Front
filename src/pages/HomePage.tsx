@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import HomeHeader from '@/features/home/components/HomeHeader.tsx'
 import ServiceCard from '@/features/home/components/ServiceCard.tsx'
+import ServicePanel from '@/features/home/components/ServicePanel.tsx'
 import { homeMock } from '@/features/home/mockData.ts'
 import type { ServiceItem } from '@/features/home/types.ts'
 import heroBackground from '@/shared/assets/images/home/hero-background.svg'
@@ -12,16 +13,49 @@ const chipBase =
   'flex h-[46px] items-center rounded-[23px] px-5 text-[17px] leading-normal'
 const chipShadow = 'drop-shadow-[0px_2px_5px_rgba(30,40,90,0.06)]'
 
+type OpenedService = { item: ServiceItem; anchor: HTMLElement; seq: number }
+
 function HomePage() {
   const navigate = useNavigate()
   const data = homeMock
   const [selectedMailbox, setSelectedMailbox] = useState<string | null>(null)
+  const [openedService, setOpenedService] = useState<OpenedService | null>(null)
+  const openService = (item: ServiceItem, anchor: HTMLElement) =>
+    setOpenedService((current) =>
+      current?.anchor === anchor
+        ? current
+        : { item, anchor, seq: (current?.seq ?? 0) + 1 },
+    )
+  const closeService = (seq: number) =>
+    setOpenedService((current) => (current?.seq === seq ? null : current))
+  const selectMailbox = (email: string | null) => {
+    setOpenedService(null)
+    setSelectedMailbox(email)
+  }
+
+  const [favoriteIds, setFavoriteIds] = useState(() =>
+    data.favorites.map((item) => item.id),
+  )
+  const toggleFavorite = (id: string) =>
+    setFavoriteIds((ids) =>
+      ids.includes(id) ? ids.filter((v) => v !== id) : [...ids, id],
+    )
+
+  const allServices = [
+    ...data.favorites,
+    ...data.subscriptions,
+    ...data.securityAlerts,
+  ]
+  const favoriteItems = favoriteIds.flatMap((id) => {
+    const item = allServices.find((service) => service.id === id)
+    return item ? [item] : []
+  })
 
   const byMailbox = (items: ServiceItem[]) =>
     selectedMailbox
       ? items.filter((item) => item.mailbox === selectedMailbox)
       : items
-  const favorites = byMailbox(data.favorites)
+  const favorites = byMailbox(favoriteItems)
   const subscriptions = byMailbox(data.subscriptions)
   const securityAlerts = byMailbox(data.securityAlerts)
 
@@ -60,7 +94,7 @@ function HomePage() {
           <button
             type="button"
             aria-pressed={selectedMailbox === null}
-            onClick={() => setSelectedMailbox(null)}
+            onClick={() => selectMailbox(null)}
             className={`${chipBase} ${chipShadow} ${chipState(selectedMailbox === null)}`}
           >
             모든 메일 {data.totalMailCount}
@@ -72,7 +106,7 @@ function HomePage() {
                 key={mailbox.email}
                 type="button"
                 aria-pressed={selected}
-                onClick={() => setSelectedMailbox(mailbox.email)}
+                onClick={() => selectMailbox(mailbox.email)}
                 className={`${chipBase} ${chipShadow} gap-2.5 ${chipState(selected)}`}
               >
                 {mailbox.provider === 'gmail' ? (
@@ -128,14 +162,17 @@ function HomePage() {
               </>
             }
             items={favorites}
+            onSelect={openService}
           />
           <ServiceCard
             title={`구독 ${subscriptions.length}개`}
             items={subscriptions}
+            onSelect={openService}
           />
           <ServiceCard
             title={`보안 알림 ${securityAlerts.length}건`}
             items={securityAlerts}
+            onSelect={openService}
           />
         </div>
 
@@ -176,6 +213,17 @@ function HomePage() {
           </button>
         </section>
       </main>
+
+      {openedService && (
+        <ServicePanel
+          key={openedService.seq}
+          item={openedService.item}
+          anchor={openedService.anchor}
+          favorite={favoriteIds.includes(openedService.item.id)}
+          onToggleFavorite={() => toggleFavorite(openedService.item.id)}
+          onClose={() => closeService(openedService.seq)}
+        />
+      )}
     </div>
   )
 }

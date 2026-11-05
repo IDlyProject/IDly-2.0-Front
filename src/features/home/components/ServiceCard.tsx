@@ -15,10 +15,11 @@ const MAX_ROWS = 3
 type ServiceCardProps = {
   title: ReactNode
   items: ServiceItem[]
+  onSelect: (item: ServiceItem, anchor: HTMLElement) => void
   className?: string
 }
 
-function ServiceCard({ title, items, className }: ServiceCardProps) {
+function ServiceCard({ title, items, onSelect, className }: ServiceCardProps) {
   return (
     <section
       className={cn(
@@ -49,6 +50,8 @@ function ServiceCard({ title, items, className }: ServiceCardProps) {
           <li key={item.id}>
             <button
               type="button"
+              data-service-row
+              onClick={(e) => onSelect(item, e.currentTarget)}
               className={cn(
                 'flex w-full items-center gap-5 text-left',
                 index === 0 ? 'h-[92px] pt-3.5' : 'h-[78px]',

@@ -49,6 +49,46 @@ export const homeMock: HomeSummary = {
       dot: 'blue',
       description: '3개월째 안 씀',
       price: '14,900원',
+      detail: {
+        billing: {
+          amount: '14,900원',
+          nextBillingDate: '10월 3일',
+          note: '최근 3개월 미사용',
+        },
+        canCancelSubscription: true,
+        totalMailCount: 5,
+        records: [
+          {
+            date: '9월 3일',
+            kind: 'payment',
+            title: 'YouTube Premium 결제 영수증',
+            amount: '₩14,900',
+          },
+          {
+            date: '8월 3일',
+            kind: 'payment',
+            title: 'YouTube Premium 결제 영수증',
+            amount: '₩14,900',
+          },
+          {
+            date: '7월 3일',
+            kind: 'payment',
+            title: 'YouTube Premium 결제 영수증',
+            amount: '₩14,900',
+          },
+          {
+            date: '6월 12일',
+            kind: 'login',
+            title: '새 기기에서 로그인했습니다',
+            caption: '로그인 활동 메일',
+          },
+          {
+            date: '2022.01.05',
+            kind: 'signup',
+            title: 'YouTube Premium에 오신 것을 환영합니다',
+          },
+        ],
+      },
     },
     {
       id: 'figma',

@@ -11,6 +11,28 @@ export type ServiceItem = {
   dot: StatusDot
   description: string
   price?: string
+  detail?: ServiceDetail
+}
+
+export type MailRecordKind = 'payment' | 'login' | 'signup'
+
+export type MailRecord = {
+  date: string
+  kind: MailRecordKind
+  title: string
+  amount?: string
+  caption?: string
+}
+
+export type ServiceDetail = {
+  billing?: {
+    amount: string
+    nextBillingDate: string
+    note: string
+  }
+  canCancelSubscription: boolean
+  records: MailRecord[]
+  totalMailCount: number
 }
 
 export type HomeMailbox = {

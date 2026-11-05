@@ -11,7 +11,10 @@ export async function startSocialLogin(provider: SocialProvider) {
   const challenge = await createChallenge(verifier)
   sessionStorage.setItem(VERIFIER_KEY, verifier)
 
-  const params = new URLSearchParams({ client_challenge: challenge })
+  const params = new URLSearchParams({
+    client_challenge: challenge,
+    front_origin: window.location.origin,
+  })
   window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/${provider}/start?${params}`
 }
 
